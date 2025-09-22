@@ -1,57 +1,58 @@
-console.log('archivo cargado');
+// app.js
+console.log("archivo cargado");
 
-// Array para almacenar los nombres
-let amigos = [];
+// Pool REAL del sorteo (aquí se eliminan ganadores)
+const pool = [];
 
-// Función para agregar un nombre a la lista
-function agregarAmigo() {
-    const input = document.getElementById('amigo');
-    const nombre = input.value.trim(); // quita espacios sobrantes
-    console.log('Intento de agregar:', nombre);
+// Referencias del DOM
+const input = document.getElementById("amigo");
+const ulLista = document.getElementById("listaAmigos");
+const ulResultado = document.getElementById("resultado");
 
-    if (nombre === '') {
-        alert('Por favor, ingresa un nombre válido.');
-        return; // salir sin modificar nada
-    }
+// Exponer funciones para los onclick del HTML
+window.agregarAmigo = function () {
+  const nombre = input.value.trim();
 
-    amigos.push(nombre);
-    input.value = ''; // limpiar el campo
-    console.log('Lista actual:', amigos);
+  if (nombre === "") {
+    alert("Por favor, ingresa un nombre válido.");
+    return;
+  }
 
-    actualizarLista();
-}
+  // 1) Se agrega al pool del sorteo
+  pool.push(nombre);
 
-// Función para mostrar la lista en el <ul>
-function actualizarLista() {
-    const lista = document.getElementById('listaAmigos');
-    lista.innerHTML = ''; // limpiar lista previa
+  // 2) Se agrega a la lista visible (APPEND, sin limpiar la lista)
+  const li = document.createElement("li");
+  li.textContent = nombre;
+  ulLista.appendChild(li);
 
-    amigos.forEach((amigo) => {
-        const li = document.createElement('li');
-        li.textContent = amigo;
-        lista.appendChild(li);
-    });
-}
+  // Limpiar input
+  input.value = "";
+  input.focus();
 
-// Función para sortear un amigo y eliminarlo de la lista
-function sortearAmigo() {
-    if (amigos.length === 0) {
-        alert('La lista está vacía. Agrega al menos un nombre.');
-        return;
-    }
+  console.log("Pool (para sorteo):", pool);
+};
 
-    const indiceAleatorio = Math.floor(Math.random() * amigos.length);
-    const amigoSecreto = amigos[indiceAleatorio];
+window.sortearAmigo = function () {
+  if (pool.length === 0) {
+    alert("Ya no quedan amigos por sortear.");
+    return;
+  }
 
-    // Mostrar resultado
-    const resultado = document.getElementById('resultado');
-    resultado.innerHTML = `<li>🎉 El amigo secreto es: <strong>${amigoSecreto}</strong></li>`;
+  // Elegir índice al azar del POOL
+  const idx = Math.floor(Math.random() * pool.length);
+  const ganador = pool[idx];
 
-    // Eliminar el amigo sorteado del array
-    amigos.splice(indiceAleatorio, 1);
+  // Mostrar/el historial de ganadores (append o reemplazar)
+  // Si prefieres reemplazar siempre, usa: ulResultado.innerHTML = "";
+  const li = document.createElement("li");
+  li.innerHTML = `🎉 El amigo secreto es: <strong>${ganador}</strong>`;
+  // Reemplaza el resultado anterior:
+  ulResultado.innerHTML = "";
+  ulResultado.appendChild(li);
 
-    // Actualizar la lista en pantalla
-    actualizarLista();
+  // Quitar del POOL para que no se repita
+  pool.splice(idx, 1);
 
-    console.log('Lista después de sorteo:', amigos);
-}
+  console.log("Pool tras sorteo:", pool);
+};
